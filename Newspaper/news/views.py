@@ -1,5 +1,10 @@
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import render, reverse, redirect
+from django.core.mail import mail_admins # импортируем функцию для массовой отправки писем админам
+from datetime import datetime
+from django.core.mail import EmailMultiAlternatives # импортируем класс для создание объекта письма с html
+from django.template.loader import render_to_string # импортируем функцию, которая срендерит наш html в текст
     # импортируем класс, который говорит нам о том, что
     # в этом представлении мы будем выводить список объектов из БД
 from .models import Post
@@ -31,9 +36,43 @@ class PostList(ListView):
 # создаём представление в котором будет детали конкретного отдельного товара
 class PostDetailView(DetailView):
     #model = Post # модель всё та же, но мы хотим получать детали конкретно отдельного товара
-    template_name = 'post.html' # название шаблона будет product.html
+    template_name = 'post.html' # название шаблона будет post.html
     #context_object_name = 'post' # название объекта. в нём будет
     queryset = Post.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        post = Post(
+            created=datetime.strptime(request.POST['created'], '%Y-%m-%d'),
+            post_name=request.POST['post_name'],
+            content=request.POST['content'],
+        )
+        post.save()
+
+        # получем наш html
+        html_content = render_to_string(
+            'post.html',
+            {
+                'post': post,
+            }
+        )
+        # в конструкторе уже знакомые нам параметры, да? Называются правда немного по другому, но суть та же.
+        msg = EmailMultiAlternatives(
+            subject=f'{post.post_name} {post.created.strftime("%Y-%M-%d")}',
+            body=post.content,  # это то же, что и message
+            from_email='mongushit@yandex.ru',
+            to=['mongushit79@gmail.com'],  # это то же, что и recipients_list
+        )
+        msg.attach_alternative(html_content, "text/html")  # добавляем html
+        msg.send()  # отсылаем
+
+        # отправляем письмо всем админам по аналогии с send_mail, только здесь получателя указывать не надо
+        mail_admins(
+            subject=f'{post.post_name} {post.created.strftime("%d %m %Y")}',
+            message=post.content,
+        )
+
+        return redirect('news:post')
+
 
 
 class Search(ListView):
@@ -57,6 +96,7 @@ class PostCreateView(PermissionRequiredMixin, CreateView):
     template_name = 'post_create.html'
     form_class = PostForm
     success_url = '/news/'
+
 
 
 class PostUpdateView(PermissionRequiredMixin, UpdateView):

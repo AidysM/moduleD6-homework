@@ -10,6 +10,6 @@ class PostForm(ModelForm):
     # Мы уже делали что-то похожее с фильтрами.
     class Meta:
         model = Post
-        fields = ['post_name', 'position', 'category', 'author', 'content', 'check_box']
+        fields = ['post_name', 'position', 'category', 'content', 'check_box']
         # не забываем включить галочку в поля иначе она не будет показываться на странице!
 
