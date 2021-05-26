@@ -158,14 +158,17 @@ class PostView(View):
 
 
 @login_required
-def subscribe_me(request):
+def subscribe_me(request, category_pk):
+    category = Category.objects.get(pk=category_pk)
+    category.subscribers.add(request.user)
+    category.save()
     # user = request.user
     # path = request.path
-    pathlist = request.path.split('/')
-    post_id = int(pathlist[-3])
-    if not Category.objects.filter(subscribers=request.user.pk):
-        post = Post.objects.get(id=post_id)
-        cat = Category.objects.get(category=post.category)
-        cat.subscribers.create(pk=user.pk)
+    # pathlist = request.path.split('/')
+    # post_id = int(pathlist[-3])
+    # if not Category.objects.filter(subscribers=request.user.pk):
+    #     post = Post.objects.get(id=post_id)
+    #     cat = Category.objects.get(category=post.category)
+    #     cat.subscribers.create(pk=user.pk)
     return redirect('news/')
 
