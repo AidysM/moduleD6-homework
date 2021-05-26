@@ -8,13 +8,20 @@ from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
+from django.core.mail import send_mail
+
 logger = logging.getLogger(__name__)
 
 
 # наша задача по выводу текста на экран
 def my_job():
     #  Your job processing logic here...
-    print('Job mail')
+    send_mail(
+        'Job for subscriber mail',
+        'hello from job!',
+        from_email='mongushit@yandex.ru',
+        recipient_list=['mongushit79@gmail.com'],
+    )
 
 
 # функция которая будет удалять неактуальные задачи
@@ -33,7 +40,7 @@ class Command(BaseCommand):
         # добавляем работу нашему задачнику
         scheduler.add_job(
             my_job,
-            trigger=CronTrigger(second="*/10"),
+            trigger=CronTrigger(day="*/7"),
             # Тоже самое что и интервал, но задача тригера таким образом более понятна django
             id="my_job",  # уникальный айди
             max_instances=1,

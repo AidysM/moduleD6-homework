@@ -8,13 +8,18 @@ from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
+from django.core.mail import mail_managers
+
 logger = logging.getLogger(__name__)
 
 
 # наша задача по выводу текста на экран
 def my_job():
     #  Your job processing logic here...
-    print('Job mail')
+    mail_managers(
+        subject='Django mail managers',
+        message='Mail content',
+    )
 
 
 # функция которая будет удалять неактуальные задачи

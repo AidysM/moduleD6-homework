@@ -3,6 +3,7 @@ from .views import PostList, PostDetailView, Search, PostCreateView
 from .views import PostDeleteView, PostUpdateView, subscribe_me
                 # импортируем наши представления
 
+# namespace = 'news'
 urlpatterns = [
     # path — означает путь. В данном случае путь ко всем товарам у нас останется пустым,
     # позже станет ясно почему

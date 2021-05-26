@@ -157,11 +157,20 @@ class PostView(View):
         return redirect('news:post')
 
 
-@login_required
-def subscribe_me(request, category_pk):
+def subscribe_to_category(request, category_pk):
     category = Category.objects.get(pk=category_pk)
     category.subscribers.add(request.user)
     category.save()
+    return redirect('/news/')
+
+@login_required
+def subscribe_me(request):
+    post_id = int(request.path.split('/')[-3])
+    post_categories = Post.objects.get(id=post_id).category_set.all()
+
+    for post_category in post_categories:
+        category_pk = post_category.id
+        subscribe_to_category(request, category_pk)
     # user = request.user
     # path = request.path
     # pathlist = request.path.split('/')
@@ -170,5 +179,5 @@ def subscribe_me(request, category_pk):
     #     post = Post.objects.get(id=post_id)
     #     cat = Category.objects.get(category=post.category)
     #     cat.subscribers.create(pk=user.pk)
-    return redirect('news/')
+    # return redirect('news/')
 
